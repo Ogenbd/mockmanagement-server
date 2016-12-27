@@ -7,6 +7,13 @@ app.use(express.static('public'))
 app.use(cors());
 app.use(bodyParser.json());
 
+var places = [
+    { id: 0, title: 'Coding Academy', lat: 32.089666, lng: 34.803104, tags: ['programming', 'fun'] },
+    { id: 1, title: 'thingy', lat: 32.088189, lng: 34.803956, tags: ['food', 'fun', 'cheap'] },
+    { id: 2, title: 'thingies', lat: 32.088654, lng: 34.803555, tags: ['clothes', 'cheap'] },
+    { id: 3, title: 'thingueeny', lat: 32.089111, lng: 34.803444, tags: ['food', 'italian', 'cheap'] },
+    { id: 4, title: 'thingu', lat: 32.088033, lng: 34.804100, tags: ['food', 'fancy', 'expensive'] }
+]
 
 var emails = [
   { id: 0, subject: 'Hey', body: 'Bootstrapping responsive SpaceTeam food-truck actionable insight bootstrapping cortado pivot latte ship it disrupt grok. Pivot iterate co-working thinker-maker-doer physical computing user story pivot parallax minimum viable product convergence. Experiential co-working entrepreneur hacker piverate piverate driven thinker-maker-doer agile venture capital.', isRead: false, isSelected: false },
@@ -1443,10 +1450,6 @@ app.put('/events', (req, res) => {
   res.json({msg: 'Item was updated!'});
 })
 
-app.listen(3003, () => {
-  console.log('REST API listening on port 3003!')
-})
-
 function findNextEventId() {
   var maxId = 0;
   events.forEach(event => {
@@ -1455,6 +1458,49 @@ function findNextEventId() {
   return maxId + 1;
 }
 
+// *** PLACES REST API ***
 
+// LIST
+app.get('/places', (req, res) => {
+    res.json(places)
+})
 
+// READ
+app.get('/places/:id', (req, res) => {
+    const id = +req.params.id;
+    const place = places.find(currPlace => currPlace.id === id);
+    res.json(place)
+})
 
+// DELETE
+app.delete('/places/:id', (req, res) => {
+    const id = +req.params.id;
+    places = places.filter(currPlace => currPlace.id !== id);
+})
+
+// CREATE
+app.post('/places', (req, res) => {
+    const place = req.body;
+    place.id = findNextPlaceId();
+    places.push(place);
+    res.end('Place was added!');
+})
+
+// UPDATE
+app.put('/places', (req, res) => {
+    const place = req.body;
+    places = places.map(currPlace => (currPlace.id === place.id) ? place : currPlace);
+    res.json({ msg: 'Item was updated!' });
+})
+
+function findNextPlaceId() {
+    var maxId = 0;
+    places.forEach(place => {
+        if (places.id > maxId) maxId = places.id;
+    });
+    return maxId + 1;
+}
+
+app.listen(3003, () => {
+    console.log('REST API listening on port 3003!')
+})
